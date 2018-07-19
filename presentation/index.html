@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Getting started with Vue</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link href="presentation.css" media="all" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# Getting started with Vue.js
+
+---
+# Framework learning curve
+.center[![Learning curves](images/learning-curves.png)]
+
+---
+
+# Wrestling the framework
+.center[![Learning curves](images/wrestling-cats.png)]
+
+---
+
+# Wrestling the burden of choice
+
+Vue is flexible, so:
+
+* There's more than one way to do things...
+* There's more than one thing to learn...
+* There's more than one thing to choose from...
+
+---
+
+# Unopinionated? 🤔
+
+# vs
+
+# Opinionated! 😏
+
+---
+
+# A modern FE framework is all about
+* Components
+* State management
+* Intercomponent communication
+
+...and because Javascript wasn't meant to be what it became:
+* Tooling
+
+---
+
+class: center, middle
+
+# Let's look into basics first
+
+# Templates
+
+---
+
+# Interpolation and Attributes
+
+```html
+<a v-bind:href="url">{{ name }}</a>
+```
+
+# Any expression can be interpolated
+```html
+{{ active ? 'Active' : 'Inactive' }}
+```
+
+---
+
+# Conditional rendering
+
+```html
+<p v-if="regularMembership">
+  <button href="/upgrade">Upgrade to premium</button>
+</p>
+```
+
+If you don't need an HTML node around:
+```html
+<template v-if="regularMembership">
+  <button href="/upgrade">Upgrade to premium</button>
+</template>
+```
+
+---
+
+# Toggling visibility
+
+```html
+<div v-show="canDownload">Download</div>
+```
+
+---
+
+# Passing raw HTML
+
+```html
+<div class="blog-content" v-html="blogPost"></div>
+```
+
+---
+
+class: center, middle
+
+# Components
+
+---
+
+# What is component?
+Self sufficient UI entity.
+
+Component must be able to encapsulate:
+* Functionaluty (JS)
+* Structure (HTML)
+* Look and feel (CSS)
+
+Component modularity heavily relies on tooling (Hello Webpack!)
+
+In Vue component is just a special object literal registered with Vue as a component.
+
+---
+
+# Component anatomy
+```js
+{
+  // use these 👍:
+  methods: {
+    submit() { /* ... */ }
+  },
+  computed: {
+    age() {
+      return (new Date()).getFullYear() - dob.year;
+    }
+  },
+
+  // and maybe these:
+  components: [Button, Input],
+  props: ['name', 'dob'],
+  data: function() { return { /* ... */ } },
+
+  // but probably not this:
+  template: '<p>...</p>',
+}
+```
+
+---
+
+# Passing properties to components
+
+Immutable literal:
+```html
+<hello name="Jack"></hello>
+```
+
+Binding dynamic property:
+```html
+<hello v-bind:name="user.name"></hello>
+```
+
+Or just:
+```html
+<hello :name="user.name"></hello>
+```
+
+Component must allow the property you are passing:
+```js
+{
+  props: ['name']
+}
+```
+
+---
+
+# Event handling
+
+In template:
+```html
+<button v-on:click="submit">OK</button>
+```
+Or simply:
+```html
+<button @click="submit">OK</button>
+```
+
+In JS:
+```js
+{
+  methods: {
+    submit(event) { alert(event.target.nodeName); }
+  }
+}
+```
+
+Note: use event parameter in your components sparingly.
+
+---
+
+# Event handling: built-in modifiers
+
+```html
+<input @keyup.enter="submit">
+
+<input @keyup.alt.67="clear">
+
+<button @click.ctrl="doSomething">Do something</button>
+
+<button @click.ctrl.exact="onCtrlClick">Ctrl+Click</button>
+```
+
+---
+
+# Custom events
+
+Child component js:
+```js
+{
+  methods: {
+    submit() { this.$emit('addToCart', this.item, this.qty) }
+  }
+}
+```
+
+Parent component template:
+```html
+<product-info :item="item" @addToCart="updateCart"></product-info>
+```
+
+This is limited to parent - child communication. Refrain from using.
+
+# 👎
+
+---
+
+# Global component registration
+
+Register once:
+```js
+Vue.component('cat-component', {
+  props: ['name', 'breed']
+})
+```
+
+Use anywhere:
+```html
+<cat-component :name="cat.name" :breed="cat.breed"></cat-component>
+```
+
+# 👍
+
+---
+
+# Local component registration
+
+Import and allow explicitly:
+
+```js
+import CatComponent from './components/cat.vue';
+
+export default {
+  components: [ CatComponent ]
+}
+```
+
+Only use when parent controller allows them.
+
+(Requires tooling).
+
+# 👍 👍
+
+---
+
+# Component slots
+
+Define it:
+```html
+<div class="alert">
+  <h2>Oops!</h2>
+  <slot></slot>
+</div>
+```
+
+Use it:
+```html
+<alert-box>
+  Something happened...
+</alert-box>
+```
+
+---
+
+# "Single file" components
+
+All-in-one `hello.vue`:
+```vue
+<template>
+  <div class="greeting">Hello, {{name}}</div>
+</template>
+
+<script>
+  export default {
+    props: ['name'],
+    data: function() {
+      return { name: 'world' }
+    }
+  }
+</script>
+
+<style>
+  .greeting {
+    font-weight: bold;
+  }
+</style>
+```
+
+Requires Vue loader (or just Webpack).
+
+---
+
+# "Single file" components from multiple files
+
+`hello.vue` references content from other files:
+```vue
+<template src="./hello.html"></template>
+<script src="./hello.js"></script>
+<style src="./hello.css"></style>
+```
+
+Possible folder structure:
+
+```
+-- 📂 hello
+      +- hello.css
+      +- hello.html
+      +- hello.js
+      +- hello.vue
+-- 📁 other-component
+-- 📁 yet-another-component
+```
+---
+
+class: center, middle
+# State management
+
+---
+
+# State management
+
+* Local (inside component): built-in 👍
+* Global (inside global store): via Vuex plugin 👍 👍 👍
+
+---
+
+# Local store
+
+```js
+{
+  data: function() {
+    return { counter: 0 }
+  },
+
+  methods: {
+    increment() { this.counter++; }
+  },
+
+  template: '<button @click="increment">+</button>'
+}
+```
+
+---
+
+# Registering global store
+
+```js
+import Vue from 'vue';
+import Vuex from 'vuex';
+import App from './components/app.vue';
+
+// register vuex plugin
+Vue.use(Vuex);
+
+new Vue({
+  render: h => h(App),
+  store: new Vuex.Store({ /* ... */ })
+}).$mount('#app')
+```
+
+Note: You can still use global store without registering it with your Vue app.
+
+---
+
+# Global store anatomy
+
+```js
+{
+  strict: process.env.NODE_ENV !== 'production',
+
+  state: {
+    count: 0
+  },
+
+  computed: {
+    prettyCount(state, getters) {
+      // can reuse other getters here
+      return state.count.toLocaleString();
+    }
+  },
+
+  mutations: {
+    increment(state) {
+      state.count++;
+    }
+  },
+
+  actions: {
+    incrementAsync(commit) {
+      $.ajax('/somewhere').then(
+        () => commit('increment')
+      )
+    }
+  }
+}
+```
+---
+
+# Accessing state
+
+`this.$store` is available in every component (if registered with the app):
+
+In template:
+```html
+<p>Total clicks: {{ $store.state.count }}</p>
+```
+
+In JS:
+```js
+{
+  computed: {
+    countInWords() {
+      const numbers = ['zero', 'one', 'two'];
+      return numbers[this.$store.state.count] || 'many'
+    }
+  }
+}
+```
+
+---
+
+# Changing state
+
+Triggering mutations:
+```js
+store.commit('increment');
+```
+
+Triggering actions:
+```js
+store.dispatch('increment');
+```
+
+---
+
+# Triggering mutations in components
+
+```js
+export default {
+  methods: {
+    increment() { this.$store.commit('increment') }
+  }
+}
+```
+
+Same with actions, just say *dispatch* instead of *commit*.
+
+---
+
+# Reusing mutations
+
+In Vue we cannot call one mutation from another.
+
+But mutation is just a function. So we can still reuse them:
+
+```js
+function pickApples(state) { /* ... */ }
+
+function pickOranges(state) { /* ... */ }
+
+function pickAll(state) {
+  pickApples(state);
+  pickOranges(state);
+}
+
+export default new Vuex.Store({
+  state: {
+    apples: 0,
+    oranges: 0
+  },
+
+  mutations: {
+    pickApples,
+    pickOranges,
+    pickAll
+  }
+})
+```
+
+---
+
+# Sometimes you still need local state
+
+HTML:
+```html
+<input v-on:keyup.enter="submit" v-model="input" type="text">
+```
+
+JS:
+```js
+export default {
+  data: function() {
+    return {
+      input: ''
+    }
+  },
+  methods: {
+    submit() {
+      const input = this.input.trim();
+      if (!input) return;
+      this.$store.commit('submitInput', input);
+      this.input = '';
+    }
+  }
+}
+```
+
+---
+
+class: center, middle
+# Inter component communication
+
+---
+
+# Inter component communication
+
+* Properties down, events up - many states and doesn't scale well. 👎
+* Using global even system - many states and somewhat chaotic. 👎
+* Accessing global store (Vuex plugin) - singe source of truth. 👍👍👍
+
+---
+class: center, middle
+# Let's code
+
+---
+
+# Starting from scratch
+
+```bash
+# 1. install vue-cli
+npm install -g @vue/cli
+
+# 2. generate project
+vue create my-project-name
+cd my-project-name
+
+# 3. Install Vuex
+npm install vuex --save
+
+# 4. Run the code
+npm run serve
+```
+
+Activate and start using Vuex.
+
+---
+
+# What shoudl I code?
+
+* Single page application.
+* No time for backend. (If you need persistance, use `localStorage`).
+* Something with user input.
+
+Some suggestions:
+* To do list.
+* Rating system.
+* Guessing random numbers.
+* Making lists of things.
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+      var slideshow = remark.create();
+    </script>
+  </body>
+</html>

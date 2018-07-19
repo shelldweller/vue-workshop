@@ -1,6 +1,8 @@
 import helpers from './store_helpers';
 
 export default {
+  strict: process.env.NODE_ENV !== 'production',
+
   state: {
     bars: []
   },

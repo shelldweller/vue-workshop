@@ -218,16 +218,18 @@ Note: use event parameter in your components sparingly.
 
 Child component js:
 ```js
-{
+Vue.component('product-info', {
+  // ...
   methods: {
-    submit() { this.$emit('addToCart', this.item, this.qty) }
-  }
-}
+    submit() { this.$emit('add-to-cart', this.item, this.qty) }
+  },
+  template: '<button @click="submit"></button>'
+})
 ```
 
 Parent component template:
 ```html
-<product-info :item="item" @addToCart="updateCart"></product-info>
+<product-info :item="item" v-on:add-to-cart="updateCart"></product-info>
 ```
 
 This is limited to parent - child communication. Refrain from using.
@@ -241,7 +243,8 @@ This is limited to parent - child communication. Refrain from using.
 Register once:
 ```js
 Vue.component('cat-component', {
-  props: ['name', 'breed']
+  props: ['name', 'breed'],
+  // ...
 })
 ```
 
@@ -367,7 +370,7 @@ class: center, middle
     increment() { this.counter++; }
   },
 
-  template: '<button @click="increment">+</button>'
+  template: '<button @click="increment">{{counter}} clicks</button>'
 }
 ```
 
@@ -482,7 +485,7 @@ Same with actions, just say *dispatch* instead of *commit*.
 
 In Vue we cannot call one mutation from another.
 
-But mutation is just a function. So we can still reuse them:
+But mutation is just a function. So we can still reuse it:
 
 ```js
 function pickApples(state) { /* ... */ }
@@ -538,6 +541,43 @@ export default {
 
 ---
 
+# Reusable vs single use components
+
+<table>
+  <tr>
+    <th>Component type</th>
+    <td>Single use</td>
+    <td>Reusable</td>
+  </tr>
+  <tr>
+    <th>Purpose</th>
+    <td>Domain specific</td>
+    <td>Generic</td>
+  </tr>
+  <tr>
+    <th>CSS</th>
+    <td>#id</td>
+    <td>.className</td>
+  </tr>
+  <tr>
+    <th>Props are from</th>
+    <td>Global state</td>
+    <td>Parent component</td>
+  </tr>
+  <tr>
+    <th>Actions</th>
+    <td>Global store's <code>commit()</code> and <code>dispatch()</code></td>
+    <td>Custom child to parent events</td>
+  </tr>
+  <tr>
+    <th>State</th>
+    <td>Global</td>
+    <td>Local (or stateless)</td>
+  </tr>
+</table>
+
+---
+
 class: center, middle
 # Inter component communication
 
@@ -545,9 +585,9 @@ class: center, middle
 
 # Inter component communication
 
-* Properties down, events up - many states and doesn't scale well. 👎
-* Using global even system - many states and somewhat chaotic. 👎
-* Accessing global store (Vuex plugin) - singe source of truth. 👍👍👍
+* *Properties down, events up* - works for reusable components but doesn't scale well for domain specific components. 👍
+* *Using global event bus* - difficult to reason about the general workflow of the app. 👎
+* *Accessing global store (Vuex plugin)* - singe source of truth. 👍👍👍
 
 ---
 class: center, middle
